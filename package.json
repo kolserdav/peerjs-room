@@ -1,0 +1,11 @@
+{
+  "name": "peerjs-room",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@git.uyem.ru:kolserdav/peerjs-room.git",
+  "author": "kolserdav <serega12101983@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^4.7.2"
+  }
+}
