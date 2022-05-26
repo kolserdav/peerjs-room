@@ -46,7 +46,9 @@ export const Api = ({
     }
     await new Promise((resolve) => {
       process.on('message', (m) => {
-        resolve(m);
+        if (m.type === 'room') {
+          resolve(m);
+        }
       });
     });
     return res.status(201).json({

@@ -41,53 +41,38 @@ export class WebSocketServer extends EventEmitter implements IWebSocketServer {
 
     this.socketServer = new WebSocketLib.Server({ path: this.path, server });
 
-    this.socketServer.on('connection', (socket: MyWebSocket, req) =>
-      this._onSocketConnection(socket, req)
-    );
-    this.socketServer.on('error', (error: Error) => this._onSocketError(error));
-  }
+    this.socketServer.on('connection', (socket: MyWebSocket, req: IncomingMessage) => {
+      const { query = {} } = url.parse(req.url ?? '', true);
 
-  private _onSocketConnection(socket: MyWebSocket, req: IncomingMessage): void {
-    const { query = {} } = url.parse(req.url ?? '', true);
+      const { id, token, key }: IAuthParams = query;
 
-    const { id, token, key }: IAuthParams = query;
-
-    if (process.send) {
-      process.send({ type: 'connection', value: id });
-    }
-
-    if (!id || !token || !key) {
-      return this._sendErrorAndClose(socket, Errors.INVALID_WS_PARAMETERS);
-    }
-
-    if (key !== this.config.key) {
-      return this._sendErrorAndClose(socket, Errors.INVALID_KEY);
-    }
-
-    const client = this.realm.getClientById(id);
-
-    if (client) {
-      if (token !== client.getToken()) {
-        // ID-taken, invalid token
-        socket.send(
-          JSON.stringify({
-            type: MessageType.ID_TAKEN,
-            payload: { msg: 'ID is taken' },
-          })
-        );
-
-        return socket.close();
+      if (!id || !token || !key) {
+        return this._sendErrorAndClose(socket, Errors.INVALID_WS_PARAMETERS);
       }
 
-      return this._configureWS(socket, client);
-    }
+      if (key !== this.config.key) {
+        return this._sendErrorAndClose(socket, Errors.INVALID_KEY);
+      }
 
-    this._registerClient({ socket, id, token });
-  }
-
-  private _onSocketError(error: Error): void {
-    // handle error
-    this.emit('error', error);
+      const client = this.realm.getClientById(id);
+      if (client) {
+        if (token !== client.getToken()) {
+          // ID-taken, invalid token
+          socket.send(
+            JSON.stringify({
+              type: MessageType.ID_TAKEN,
+              payload: { msg: 'ID is taken' },
+            })
+          );
+          return socket.close();
+        }
+        return this._configureWS(socket, client);
+      }
+      this._registerClient({ socket, id, token });
+    });
+    this.socketServer.on('error', (error: Error) => {
+      this.emit('error', error);
+    });
   }
 
   private _registerClient({
@@ -119,8 +104,13 @@ export class WebSocketServer extends EventEmitter implements IWebSocketServer {
     // Cleanup after a socket closes.
     socket.on('close', () => {
       if (client.getSocket() === socket) {
-        this.realm.removeClientById(client.getId());
+        const id = client.getId();
+        this.realm.removeClientById(id);
         this.emit('close', client);
+
+        if (process.send) {
+          process.send({ type: 'close', value: id });
+        }
       }
     });
 
@@ -138,6 +128,10 @@ export class WebSocketServer extends EventEmitter implements IWebSocketServer {
     });
 
     this.emit('connection', client);
+
+    if (process.send) {
+      process.send({ type: 'connection', value: client.getId() });
+    }
   }
 
   private _sendErrorAndClose(socket: MyWebSocket, msg: Errors): void {
