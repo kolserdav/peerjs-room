@@ -1,4 +1,4 @@
-import { chromium } from 'playwright';
+import { chromium, Page } from 'playwright';
 import type { IncomingHttpHeaders } from 'http';
 
 interface Env extends NodeJS.ProcessEnv {
@@ -8,13 +8,13 @@ interface Env extends NodeJS.ProcessEnv {
 const { APP_URL }: Env = process.env as Env;
 
 const VIEWPORT = { width: 640, height: 480 };
-const HEADLESS = true;
+const HEADLESS = false;
 // eslint-disable-next-line prefer-const
 let recordVideo: any = { dir: 'videos/', size: VIEWPORT };
 // TODO
 recordVideo = undefined;
 
-export const createRoom = async ({ roomId }: { roomId: string }) => {
+export const createRoom = async ({ roomId }: { roomId: string }): Promise<Page> => {
   const browser = await chromium.launch({
     headless: HEADLESS,
     devtools: !HEADLESS,
@@ -30,6 +30,7 @@ export const createRoom = async ({ roomId }: { roomId: string }) => {
   await page.setViewportSize(VIEWPORT);
   await page.goto(`${APP_URL}/${roomId}?room=1`);
   await page.waitForLoadState();
+  return page;
 };
 
 let roomId = 0;

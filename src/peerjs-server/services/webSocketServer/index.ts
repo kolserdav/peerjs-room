@@ -107,10 +107,6 @@ export class WebSocketServer extends EventEmitter implements IWebSocketServer {
         const id = client.getId();
         this.realm.removeClientById(id);
         this.emit('close', client);
-
-        if (process.send) {
-          process.send({ type: 'close', value: id });
-        }
       }
     });
 
@@ -118,9 +114,10 @@ export class WebSocketServer extends EventEmitter implements IWebSocketServer {
     socket.on('message', (data: WebSocketLib.Data) => {
       try {
         const message = JSON.parse(data as string);
-
         message.src = client.getId();
-
+        if (process.send) {
+          process.send({ type: 'close', value: message.dst });
+        }
         this.emit('message', client, message);
       } catch (e) {
         this.emit('error', e);
