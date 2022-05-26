@@ -1,7 +1,7 @@
-import { v4 as  uuidv4 } from "uuid";
-import { IClient } from "./client";
-import { IMessage } from "./message";
-import { IMessageQueue, MessageQueue } from "./messageQueue";
+import { v4 as uuidv4 } from 'uuid';
+import { IClient } from './client';
+import { IMessage } from './message';
+import { IMessageQueue, MessageQueue } from './messageQueue';
 
 export interface IRealm {
   getClientsIds(): string[];

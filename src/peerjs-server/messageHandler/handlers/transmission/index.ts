@@ -1,9 +1,13 @@
-import { MessageType } from "../../../enums";
-import { IClient } from "../../../models/client";
-import { IMessage } from "../../../models/message";
-import { IRealm } from "../../../models/realm";
+import { MessageType } from '../../../enums';
+import { IClient } from '../../../models/client';
+import { IMessage } from '../../../models/message';
+import { IRealm } from '../../../models/realm';
 
-export const TransmissionHandler = ({ realm }: { realm: IRealm; }): (client: IClient | undefined, message: IMessage) => boolean => {
+export const TransmissionHandler = ({
+  realm,
+}: {
+  realm: IRealm;
+}): ((client: IClient | undefined, message: IMessage) => boolean) => {
   const handle = (client: IClient | undefined, message: IMessage) => {
     const type = message.type;
     const srcId = message.src;
@@ -21,7 +25,7 @@ export const TransmissionHandler = ({ realm }: { realm: IRealm; }): (client: ICl
           socket.send(data);
         } else {
           // Neither socket no res available. Peer dead?
-          throw new Error("Peer dead");
+          throw new Error('Peer dead');
         }
       } catch (e) {
         // This happens when a peer disconnects without closing connections and
@@ -36,7 +40,7 @@ export const TransmissionHandler = ({ realm }: { realm: IRealm; }): (client: ICl
         handle(client, {
           type: MessageType.LEAVE,
           src: dstId,
-          dst: srcId
+          dst: srcId,
         });
       }
     } else {

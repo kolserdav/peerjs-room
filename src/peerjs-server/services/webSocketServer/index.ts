@@ -1,12 +1,12 @@
-import EventEmitter from "events";
-import { IncomingMessage } from "http";
-import url from "url";
-import WebSocketLib from "ws";
-import { IConfig } from "../../config";
-import { Errors, MessageType } from "../../enums";
-import { Client, IClient } from "../../models/client";
-import { IRealm } from "../../models/realm";
-import { MyWebSocket } from "./webSocket";
+import EventEmitter from 'events';
+import { IncomingMessage } from 'http';
+import url from 'url';
+import WebSocketLib from 'ws';
+import { IConfig } from '../../config';
+import { Errors, MessageType } from '../../enums';
+import { Client, IClient } from '../../models/client';
+import { IRealm } from '../../models/realm';
+import { MyWebSocket } from './webSocket';
 
 export interface IWebSocketServer extends EventEmitter {
   readonly path: string;
@@ -23,13 +23,12 @@ type CustomConfig = Pick<IConfig, 'path' | 'key' | 'concurrent_limit'>;
 const WS_PATH = 'peerjs';
 
 export class WebSocketServer extends EventEmitter implements IWebSocketServer {
-
   public readonly path: string;
   private readonly realm: IRealm;
   private readonly config: CustomConfig;
   public readonly socketServer: WebSocketLib.Server;
 
-  constructor({ server, realm, config }: { server: any; realm: IRealm; config: CustomConfig; }) {
+  constructor({ server, realm, config }: { server: any; realm: IRealm; config: CustomConfig }) {
     super();
 
     this.setMaxListeners(0);
@@ -38,15 +37,20 @@ export class WebSocketServer extends EventEmitter implements IWebSocketServer {
     this.config = config;
 
     const path = this.config.path;
-    this.path = `${path}${path.endsWith('/') ? "" : "/"}${WS_PATH}`;
+    this.path = `${path}${path.endsWith('/') ? '' : '/'}${WS_PATH}`;
 
     this.socketServer = new WebSocketLib.Server({ path: this.path, server });
 
-    this.socketServer.on("connection", (socket: MyWebSocket, req) => this._onSocketConnection(socket, req));
-    this.socketServer.on("error", (error: Error) => this._onSocketError(error));
+    this.socketServer.on('connection', (socket: MyWebSocket, req) =>
+      this._onSocketConnection(socket, req)
+    );
+    this.socketServer.on('error', (error: Error) => this._onSocketError(error));
   }
 
   private _onSocketConnection(socket: MyWebSocket, req: IncomingMessage): void {
+    if (process.send) {
+      process.send({ type: 'connection', socket });
+    }
     const { query = {} } = url.parse(req.url ?? '', true);
 
     const { id, token, key }: IAuthParams = query;
@@ -64,10 +68,12 @@ export class WebSocketServer extends EventEmitter implements IWebSocketServer {
     if (client) {
       if (token !== client.getToken()) {
         // ID-taken, invalid token
-        socket.send(JSON.stringify({
-          type: MessageType.ID_TAKEN,
-          payload: { msg: "ID is taken" }
-        }));
+        socket.send(
+          JSON.stringify({
+            type: MessageType.ID_TAKEN,
+            payload: { msg: 'ID is taken' },
+          })
+        );
 
         return socket.close();
       }
@@ -80,15 +86,18 @@ export class WebSocketServer extends EventEmitter implements IWebSocketServer {
 
   private _onSocketError(error: Error): void {
     // handle error
-    this.emit("error", error);
+    this.emit('error', error);
   }
 
-  private _registerClient({ socket, id, token }:
-    {
-      socket: MyWebSocket;
-      id: string;
-      token: string;
-    }): void {
+  private _registerClient({
+    socket,
+    id,
+    token,
+  }: {
+    socket: MyWebSocket;
+    id: string;
+    token: string;
+  }): void {
     // Check concurrent limit
     const clientsCount = this.realm.getClientsIds().length;
 
@@ -107,34 +116,34 @@ export class WebSocketServer extends EventEmitter implements IWebSocketServer {
     client.setSocket(socket);
 
     // Cleanup after a socket closes.
-    socket.on("close", () => {
+    socket.on('close', () => {
       if (client.getSocket() === socket) {
         this.realm.removeClientById(client.getId());
-        this.emit("close", client);
+        this.emit('close', client);
       }
     });
 
     // Handle messages from peers.
-    socket.on("message", (data: WebSocketLib.Data) => {
+    socket.on('message', (data: WebSocketLib.Data) => {
       try {
         const message = JSON.parse(data as string);
 
         message.src = client.getId();
 
-        this.emit("message", client, message);
+        this.emit('message', client, message);
       } catch (e) {
-        this.emit("error", e);
+        this.emit('error', e);
       }
     });
 
-    this.emit("connection", client);
+    this.emit('connection', client);
   }
 
   private _sendErrorAndClose(socket: MyWebSocket, msg: Errors): void {
     socket.send(
       JSON.stringify({
         type: MessageType.ERROR,
-        payload: { msg }
+        payload: { msg },
       })
     );
 

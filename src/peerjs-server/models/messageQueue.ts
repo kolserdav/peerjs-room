@@ -1,4 +1,4 @@
-import { IMessage } from "./message";
+import { IMessage } from './message';
 
 export interface IMessageQueue {
   getLastReadAt(): number;

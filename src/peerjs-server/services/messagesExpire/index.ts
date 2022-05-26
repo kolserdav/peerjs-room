@@ -1,7 +1,7 @@
-import { IConfig } from "../../config";
-import { MessageType } from "../../enums";
-import { IMessageHandler } from "../../messageHandler";
-import { IRealm } from "../../models/realm";
+import { IConfig } from '../../config';
+import { MessageType } from '../../enums';
+import { IMessageHandler } from '../../messageHandler';
+import { IRealm } from '../../models/realm';
 
 export interface IMessagesExpire {
   startMessagesExpiration(): void;
@@ -17,7 +17,11 @@ export class MessagesExpire implements IMessagesExpire {
 
   private timeoutId: NodeJS.Timeout | null = null;
 
-  constructor({ realm, config, messageHandler }: {
+  constructor({
+    realm,
+    config,
+    messageHandler,
+  }: {
     realm: IRealm;
     config: CustomConfig;
     messageHandler: IMessageHandler;
@@ -75,7 +79,7 @@ export class MessagesExpire implements IMessagesExpire {
           this.messageHandler.handle(undefined, {
             type: MessageType.EXPIRE,
             src: message.dst,
-            dst: message.src
+            dst: message.src,
           });
 
           seen[seenKey] = true;
