@@ -1,4 +1,5 @@
 import { chromium } from 'playwright';
+import type { IncomingHttpHeaders } from 'http';
 
 interface Env extends NodeJS.ProcessEnv {
   APP_URL: string;
@@ -29,4 +30,23 @@ export const createRoom = async ({ roomId }: { roomId: string }) => {
   await page.setViewportSize(VIEWPORT);
   await page.goto(`${APP_URL}/${roomId}?room=1`);
   await page.waitForLoadState();
+};
+
+let roomId = 0;
+
+export const getRoomId = () => {
+  roomId++;
+  const roomStr = roomId.toString();
+  let room = '';
+  for (let i = 0; i < 12; i++) {
+    if (!roomStr[i]) {
+      room += '0';
+    }
+  }
+  room += roomStr;
+  return room;
+};
+
+export const getUserId = ({ headers }: { headers: IncomingHttpHeaders }): string => {
+  return new Date().getTime().toString();
 };

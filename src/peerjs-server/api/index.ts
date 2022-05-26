@@ -7,8 +7,7 @@ import { IRealm } from '../models/realm';
 import { AuthMiddleware } from './middleware/auth';
 import CallsApi from './v1/calls';
 import PublicApi from './v1/public';
-
-let roomId = 0;
+import { getUserId } from '../../utils';
 
 export const Api = ({
   config,
@@ -29,31 +28,24 @@ export const Api = ({
 
   // Create room
   app.post('/room', async (req, res) => {
-    roomId++;
-    const roomStr = roomId.toString();
-    let room = '';
-    for (let i = 0; i < 12; i++) {
-      if (!roomStr[i]) {
-        room += '0';
-      }
-    }
-    room += roomStr;
+    const { headers } = req;
+    const userId = getUserId({ headers });
     if (process.send) {
-      process.send({
-        type: 'create',
-        value: room,
-      });
+      process.send({ type: 'create', value: userId });
     }
-    await new Promise((resolve) => {
+    const roomId = await new Promise((resolve) => {
       process.on('message', (m) => {
         if (m.type === 'room') {
-          resolve(m);
+          resolve(m.value);
         }
       });
     });
     return res.status(201).json({
       type: 'room',
-      value: room,
+      value: {
+        roomId,
+        userId,
+      },
     });
   });
 
