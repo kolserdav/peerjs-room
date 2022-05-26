@@ -1,8 +1,14 @@
 import cluster from 'cluster';
-import path from 'path';
-import fs from 'fs';
+import dotenv from 'dotenv';
 import { chromium } from 'playwright';
+dotenv.config();
 import { PeerServer } from './peerjs-server/index';
+
+interface Env extends NodeJS.ProcessEnv {
+  APP_URL: string;
+}
+
+const { APP_URL }: Env = process.env as Env;
 
 const VIEWPORT = { width: 1633, height: 768 };
 // eslint-disable-next-line prefer-const
@@ -13,7 +19,7 @@ recordVideo = undefined;
 if (cluster.isPrimary) {
   const worker = cluster.fork();
   worker.on('message', (m) => {
-    console.log(m);
+    console.log('message', m);
     if (m.type === 'create') {
       (async () => {
         const browser = await chromium.launch({
@@ -29,14 +35,17 @@ if (cluster.isPrimary) {
         const context = await browser.newContext({ recordVideo: recordVideo || undefined });
         const page = await context.newPage();
         await page.setViewportSize(VIEWPORT);
-        await page.goto('http://localhost:3000');
-        await page.waitForTimeout(5000);
-        await page.close();
+        await page.goto(`${APP_URL}/${m.value}?room=1`);
+        await page.waitForLoadState();
+        worker.send({ type: 'room', value: m.value });
       })();
     }
   });
   worker.on('disconnect', () => {
-    console.error('Disconnect ');
+    console.error('Disconnect  ');
+  });
+  worker.on('room', (d) => {
+    console.log(`room`, d);
   });
 } else if (process.send) {
   const peer = PeerServer({

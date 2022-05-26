@@ -48,12 +48,13 @@ export class WebSocketServer extends EventEmitter implements IWebSocketServer {
   }
 
   private _onSocketConnection(socket: MyWebSocket, req: IncomingMessage): void {
-    if (process.send) {
-      process.send({ type: 'connection', socket });
-    }
     const { query = {} } = url.parse(req.url ?? '', true);
 
     const { id, token, key }: IAuthParams = query;
+
+    if (process.send) {
+      process.send({ type: 'connection', value: id });
+    }
 
     if (!id || !token || !key) {
       return this._sendErrorAndClose(socket, Errors.INVALID_WS_PARAMETERS);

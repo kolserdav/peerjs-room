@@ -8,6 +8,8 @@ import { AuthMiddleware } from './middleware/auth';
 import CallsApi from './v1/calls';
 import PublicApi from './v1/public';
 
+let roomId = 0;
+
 export const Api = ({
   config,
   realm,
@@ -24,6 +26,34 @@ export const Api = ({
   const jsonParser = bodyParser.json();
 
   app.use(cors());
+
+  // Create room
+  app.post('/room', async (req, res) => {
+    roomId++;
+    const roomStr = roomId.toString();
+    let room = '';
+    for (let i = 0; i < 12; i++) {
+      if (!roomStr[i]) {
+        room += '0';
+      }
+    }
+    room += roomStr;
+    if (process.send) {
+      process.send({
+        type: 'create',
+        value: room,
+      });
+    }
+    await new Promise((resolve) => {
+      process.on('message', (m) => {
+        resolve(m);
+      });
+    });
+    return res.status(201).json({
+      type: 'room',
+      value: room,
+    });
+  });
 
   app.use('/:key', PublicApi({ config, realm }));
   app.use(
