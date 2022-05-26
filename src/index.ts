@@ -10,7 +10,6 @@ const rooms: Record<string, Page> = {};
 if (cluster.isPrimary) {
   const worker = cluster.fork();
   worker.on('message', (m: Result) => {
-    console.log('message', m);
     const { type, value } = m;
     const dropuseReg = /^dropuser_/;
     let adminId = '';
