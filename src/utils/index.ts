@@ -8,7 +8,7 @@ interface Env extends NodeJS.ProcessEnv {
 const { APP_URL }: Env = process.env as Env;
 
 const VIEWPORT = { width: 640, height: 480 };
-const HEADLESS = false;
+const HEADLESS = true;
 // eslint-disable-next-line prefer-const
 let recordVideo: any = { dir: 'videos/', size: VIEWPORT };
 // TODO
