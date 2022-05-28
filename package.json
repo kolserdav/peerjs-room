@@ -7,7 +7,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "concurrently \"tsc -p . -w\" \"nodemon ${npm_package_main}\" ",
-    "build": "tsc -p",
+    "build": "tsc -p .",
     "start": "node ${npm_package_main}"
   },
   "dependencies": {
