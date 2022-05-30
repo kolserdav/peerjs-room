@@ -1,8 +1,8 @@
 import puppeteer from 'puppeteer';
+import { chromium, Page } from 'playwright';
 import { PuppeteerScreenRecorder } from 'puppeteer-screen-recorder';
 import type { IncomingHttpHeaders } from 'http';
 import { VIEWPORT, HEADLESS } from './constants';
-import path from 'path';
 
 interface Env extends NodeJS.ProcessEnv {
   APP_URL: string;
@@ -31,39 +31,24 @@ export const createRoom = async ({
 }: {
   roomId: string;
   recordVideo?: boolean;
-}): Promise<{ page: puppeteer.Page; recorder?: PuppeteerScreenRecorder }> => {
-  const browser = await puppeteer.launch({
+}): Promise<{ page: Page; recorder?: PuppeteerScreenRecorder }> => {
+  const browser = await chromium.launch({
     headless: HEADLESS,
     devtools: !HEADLESS,
-    dumpio: true,
     args: [
-      '--ignore-gpu-blocklist',
       '--disable-gpu',
       '--disable-software-rasterizer',
-      '--no-sandbox',
       '--allow-file-access-from-files',
       '--disable-gesture-requirement-for-media-playback',
       '--use-fake-ui-for-media-stream',
       '--use-fake-device-for-media-stream',
     ],
   });
-  const page = await browser.newPage();
-  await page.setViewport(VIEWPORT);
+  const context = await browser.newContext({ recordVideo: undefined });
+  const page = await context.newPage();
+  await page.setViewportSize(VIEWPORT);
   await page.goto(`${APP_URL}/${roomId}?room=1`);
-  if (recordVideo) {
-    const Config = {
-      followNewTab: true,
-      fps: 25,
-      ffmpeg_Path: null,
-      videoFrame: VIEWPORT,
-      aspectRatio: '16:9',
-    };
-    const recorder = new PuppeteerScreenRecorder(page, Config);
-    const savePath = path.resolve(__dirname, `../../tmp/${roomId}.mp4`);
-    await recorder.start(savePath);
-    return { page, recorder };
-  }
-
+  await page.waitForLoadState();
   return { page };
 };
 

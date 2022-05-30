@@ -2,11 +2,12 @@ import cluster from 'cluster';
 import dotenv from 'dotenv';
 import type puppeteer from 'puppeteer';
 import type { PuppeteerScreenRecorder } from 'puppeteer-screen-recorder';
+import { Page } from 'playwright';
 dotenv.config();
 import { PeerServer } from './peerjs-server/index';
 import { createRoom, getRoomId } from './utils';
 
-const rooms: Record<string, { page: puppeteer.Page; recorder?: PuppeteerScreenRecorder }> = {};
+const rooms: Record<string, { page: Page; recorder?: PuppeteerScreenRecorder }> = {};
 
 if (cluster.isPrimary) {
   const worker = cluster.fork();
