@@ -36,6 +36,7 @@ export const createRoom = async ({
     headless: HEADLESS,
     devtools: !HEADLESS,
     args: [
+      '--no-sandbox',
       '--allow-file-access-from-files',
       '--disable-gesture-requirement-for-media-playback',
       '--use-fake-ui-for-media-stream',
@@ -45,7 +46,9 @@ export const createRoom = async ({
   const page = await browser.newPage();
   await page.setViewport(VIEWPORT);
   await page.goto(`${APP_URL}/${roomId}?room=1`);
-
+  page.on('console', (e) => {
+    console.log(e);
+  });
   if (recordVideo) {
     const Config = {
       followNewTab: true,
