@@ -31,7 +31,6 @@ export const Api = ({
     const { headers } = req;
     const userId = getUserId({ headers });
     if (process.send) {
-      console.log('cre', headers);
       process.send({ type: 'create', value: userId });
     }
     const roomId = await new Promise((resolve) => {
