@@ -1,5 +1,5 @@
 import puppeteer from 'puppeteer';
-import { chromium, Page } from 'playwright';
+import { firefox, Page } from 'playwright';
 import { PuppeteerScreenRecorder } from 'puppeteer-screen-recorder';
 import type { IncomingHttpHeaders } from 'http';
 import { VIEWPORT, HEADLESS } from './constants';
@@ -32,7 +32,7 @@ export const createRoom = async ({
   roomId: string;
   recordVideo?: boolean;
 }): Promise<{ page: Page; recorder?: PuppeteerScreenRecorder }> => {
-  const browser = await chromium.launch({
+  const browser = await firefox.launch({
     headless: HEADLESS,
     devtools: !HEADLESS,
     args: [
