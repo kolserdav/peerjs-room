@@ -1,13 +1,11 @@
 import cluster from 'cluster';
 import dotenv from 'dotenv';
-import type puppeteer from 'puppeteer';
-import type { PuppeteerScreenRecorder } from 'puppeteer-screen-recorder';
 import { Page } from 'playwright';
 dotenv.config();
 import { PeerServer } from './peerjs-server/index';
 import { createRoom, getRoomId } from './utils';
 
-const rooms: Record<string, { page: puppeteer.Page; recorder?: PuppeteerScreenRecorder }> = {};
+const rooms: Record<string, Page> = {};
 
 if (cluster.isPrimary) {
   const worker = cluster.fork();
@@ -22,7 +20,7 @@ if (cluster.isPrimary) {
         adminId = value;
         roomId = getRoomId();
         (async () => {
-          rooms[roomId] = await createRoom({ roomId, recordVideo: false });
+          rooms[roomId] = await createRoom({ roomId });
         })();
         break;
       case 'connection':
@@ -34,8 +32,7 @@ if (cluster.isPrimary) {
         if (dropuseReg.test(value)) {
           roomId = value.replace(dropuseReg, '');
           if (rooms[roomId]) {
-            rooms[roomId].recorder?.stop();
-            rooms[roomId].page.close();
+            rooms[roomId].close();
             delete rooms[roomId];
           }
         }
