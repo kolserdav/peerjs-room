@@ -2,7 +2,7 @@ import cluster from 'cluster';
 import dotenv from 'dotenv';
 import { Page } from 'playwright';
 dotenv.config();
-import { PeerServer } from './peerjs-server/index';
+import { PeerServer } from 'peer';
 import { createRoom, getRoomId } from './utils';
 
 const rooms: Record<string, Page> = {};
@@ -48,7 +48,6 @@ if (cluster.isPrimary) {
   const peer = PeerServer({
     path: '/',
     port: 9000,
-    host: '',
   });
 } else {
   console.warn('Unhandled case');
