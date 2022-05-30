@@ -28,9 +28,10 @@ export const createRoom = async ({ roomId }: { roomId: string }): Promise<Page> 
   const page = await context.newPage();
   await page.setViewportSize(VIEWPORT);
   await page.goto(`${APP_URL}/${roomId}?room=1`);
+  page.on('console', (e) => {
+    console.log('console', e);
+  });
   await page.waitForLoadState();
-  await page.waitForTimeout(5000);
-  await page.screenshot({ path: 'tmp/screenshot.png' });
   return page;
 };
 
