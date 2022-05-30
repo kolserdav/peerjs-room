@@ -34,7 +34,6 @@ export const Api = ({
       console.log('cre', headers);
       process.send({ type: 'create', value: userId });
     }
-    console.log(1);
     const roomId = await new Promise((resolve) => {
       process.on('message', (m) => {
         if (m.type === 'room') {

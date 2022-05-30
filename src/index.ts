@@ -19,7 +19,6 @@ if (cluster.isPrimary) {
         // TODO admin
         adminId = value;
         roomId = getRoomId();
-        console.log('create');
         (async () => {
           rooms[roomId] = await createRoom({ roomId });
         })();
