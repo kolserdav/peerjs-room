@@ -37,6 +37,7 @@ export const createRoom = async ({
     devtools: !HEADLESS,
     dumpio: true,
     args: [
+      '--no-sandbox',
       '--allow-file-access-from-files',
       '--disable-gesture-requirement-for-media-playback',
       '--use-fake-ui-for-media-stream',
