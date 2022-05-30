@@ -37,6 +37,7 @@ export const createRoom = async ({
     devtools: !HEADLESS,
     dumpio: true,
     args: [
+      '--ignore-gpu-blocklist',
       '--disable-gpu',
       '--disable-software-rasterizer',
       '--no-sandbox',
