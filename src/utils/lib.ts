@@ -47,14 +47,6 @@ export const createRoom = async ({
     ],
   });
   const page = await browser.newPage();
-  const f12 = await page.target().createCDPSession();
-  await f12.send('Network.enable');
-  await f12.send('Page.enable');
-  const handleWebSocketFrameReceived = (params: any) => {
-    console.log(21, params);
-    const payload = params.response.payloadData;
-  };
-  f12.on('Network.webSocketFrameReceived', handleWebSocketFrameReceived);
   await page.setViewport(VIEWPORT);
   await page.goto(`${APP_URL}/${roomId}?room=1`);
   if (recordVideo) {
