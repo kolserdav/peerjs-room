@@ -35,6 +35,7 @@ export const createRoom = async ({
   const browser = await puppeteer.launch({
     headless: HEADLESS,
     devtools: !HEADLESS,
+    dumpio: true,
     args: [
       '--no-sandbox',
       '--allow-file-access-from-files',
@@ -46,9 +47,6 @@ export const createRoom = async ({
   const page = await browser.newPage();
   await page.setViewport(VIEWPORT);
   await page.goto(`${APP_URL}/${roomId}?room=1`);
-  page.on('console', (e) => {
-    console.log(e.text());
-  });
   if (recordVideo) {
     const Config = {
       followNewTab: true,
