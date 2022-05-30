@@ -58,7 +58,7 @@ export const createRoom = async ({
       aspectRatio: '4:3',
     };
     const recorder = new PuppeteerScreenRecorder(page, Config);
-    const savePath = path.resolve(__dirname, `../../videos/${roomId}.mp4`);
+    const savePath = path.resolve(__dirname, `../../tmp/${roomId}.mp4`);
     await recorder.start(savePath);
     return { page, recorder };
   }

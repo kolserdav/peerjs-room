@@ -21,7 +21,7 @@ if (cluster.isPrimary) {
         adminId = value;
         roomId = getRoomId();
         (async () => {
-          rooms[roomId] = await createRoom({ roomId });
+          rooms[roomId] = await createRoom({ roomId, recordVideo: true });
         })();
         break;
       case 'connection':
