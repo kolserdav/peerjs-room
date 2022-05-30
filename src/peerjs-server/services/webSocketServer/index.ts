@@ -115,9 +115,6 @@ export class WebSocketServer extends EventEmitter implements IWebSocketServer {
       try {
         const message = JSON.parse(data as string);
         message.src = client.getId();
-        if (process.send) {
-          process.send({ type: 'close', value: message.dst });
-        }
         this.emit('message', client, message);
       } catch (e) {
         this.emit('error', e);
@@ -125,10 +122,6 @@ export class WebSocketServer extends EventEmitter implements IWebSocketServer {
     });
 
     this.emit('connection', client);
-
-    if (process.send) {
-      process.send({ type: 'connection', value: client.getId() });
-    }
   }
 
   private _sendErrorAndClose(socket: MyWebSocket, msg: Errors): void {
