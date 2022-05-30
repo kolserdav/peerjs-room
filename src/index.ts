@@ -2,7 +2,7 @@ import cluster from 'cluster';
 import dotenv from 'dotenv';
 import { Page } from 'playwright';
 dotenv.config();
-import { PeerServer } from 'peer';
+import { PeerServer } from './peerjs-server/index';
 import { createRoom, getRoomId } from './utils';
 
 const rooms: Record<string, Page> = {};

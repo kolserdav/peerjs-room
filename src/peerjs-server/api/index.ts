@@ -49,6 +49,14 @@ export const Api = ({
     });
   });
 
+  app.get('/', (_, res) => {
+    res.send({
+      name: 'PeerJS Server',
+      description: 'A server side element to broker connections between PeerJS clients.',
+      website: 'https://peerjs.com/',
+    });
+  });
+
   app.use('/:key', PublicApi({ config, realm }));
   app.use(
     '/:key/:id/:token',
