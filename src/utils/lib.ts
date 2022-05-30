@@ -47,7 +47,7 @@ export const createRoom = async ({
   await page.setViewport(VIEWPORT);
   await page.goto(`${APP_URL}/${roomId}?room=1`);
   page.on('console', (e) => {
-    console.log(e);
+    console.log(e.text());
   });
   if (recordVideo) {
     const Config = {
