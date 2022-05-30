@@ -7,7 +7,7 @@ dotenv.config();
 import { PeerServer } from './peerjs-server/index';
 import { createRoom, getRoomId } from './utils';
 
-const rooms: Record<string, { page: Page; recorder?: PuppeteerScreenRecorder }> = {};
+const rooms: Record<string, { page: puppeteer.Page; recorder?: PuppeteerScreenRecorder }> = {};
 
 if (cluster.isPrimary) {
   const worker = cluster.fork();
