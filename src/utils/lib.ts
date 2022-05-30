@@ -38,7 +38,6 @@ export const createRoom = async ({
     dumpio: true,
     args: [
       '--disable-gpu',
-      '--disable-software-rasterizer',
       '--no-sandbox',
       '--allow-file-access-from-files',
       '--disable-gesture-requirement-for-media-playback',
